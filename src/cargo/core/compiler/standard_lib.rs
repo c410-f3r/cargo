@@ -1,12 +1,13 @@
 //! Code for building the standard library.
 
+use cargo_util_schemas::core::{PackageIdSpec, SourceKind};
 use crate::core::compiler::unit_dependencies::IsArtifact;
 use crate::core::compiler::UnitInterner;
 use crate::core::compiler::{CompileKind, CompileMode, RustcTargetData, Unit};
 use crate::core::profiles::{Profiles, UnitFor};
 use crate::core::resolver::features::{CliFeatures, FeaturesFor, ResolvedFeatures};
 use crate::core::resolver::HasDevUnits;
-use crate::core::{PackageId, PackageSet, Resolve, Workspace};
+use crate::core::{GitReference, PackageId, PackageSet, Resolve, Workspace};
 use crate::ops::{self, Packages};
 use crate::util::errors::CargoResult;
 use crate::GlobalContext;
@@ -87,7 +88,18 @@ pub fn resolve_std<'gctx>(
     let mut spec_pkgs = Vec::from(crates);
     spec_pkgs.push("sysroot".to_string());
     let spec = Packages::Packages(spec_pkgs);
-    let specs = spec.to_package_id_specs(&std_ws)?;
+    let mut specs = spec.to_package_id_specs(&std_ws)?;
+    specs.push(
+        PackageIdSpec::new("compiler_builtins".into())
+            .with_kind(SourceKind::Git(GitReference::Tag(
+                "solana-tools-v1.36".to_string(),
+            )))
+            .with_url(
+                "https://github.com/solana-labs/compiler-builtins"
+                    .parse()
+                    .unwrap(),
+            ),
+    );
     let features = match &gctx.cli_unstable().build_std_features {
         Some(list) => list.clone(),
         None => vec![

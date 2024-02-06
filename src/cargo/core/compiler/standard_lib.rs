@@ -92,7 +92,7 @@ pub fn resolve_std<'gctx>(
     specs.push(
         PackageIdSpec::new("compiler_builtins".into())
             .with_kind(SourceKind::Git(GitReference::Tag(
-                "solana-tools-v1.36".to_string(),
+                "solana-tools-v1.40".to_string(),
             )))
             .with_url(
                 "https://github.com/solana-labs/compiler-builtins"
